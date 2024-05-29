@@ -1,0 +1,40 @@
+name: CI/CD workflow
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install SSH Client
+      run: sudo apt-get install openssh-client
+
+    - name: Copy files via SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_MUTU_KEY }}
+        SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        rsync -avz --delete ./ rhontelebk-fqu@ssh.cluster020.hosting.ovh.net:/homez.14/rhontelebk/sitePublic-DEV/poc-cicd
+
+    - name: Execute remote commands
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_MUTU_KEY }}
+        SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no rhontelebk-fqu@ssh.cluster020.hosting.ovh.net << 'EOF'
+          cd /homez.14/rhontelebk/sitePublic-DEV
+          # Add any commands you need to run after the files are copied
+          # For example, you might want to restart a service
+          # sudo systemctl restart your_service
+        EOF
