@@ -10,14 +10,17 @@ jobs:
       - name: Install OpenVPN
         run: |
           sudo apt-get update
-          sudo apt-get --assume-yes --no-install-recommends install openvpn          
+          sudo apt-get --assume-yes --no-install-recommends install openvpn
 
       - name: Setup VPN config
         run: |
           echo "${{ secrets.CA_CRT }}" > ca.crt
           echo "${{ secrets.USER_CRT }}" > RT_GEN.crt
           echo "${{ secrets.USER_KEY }}" > RT_GEN.key
-          echo "${{ secrets.TA_KEY }}" > ta.key          
+          echo "${{ secrets.TA_KEY }}" > ta.key
+
+      - name: List files for debugging
+        run: ls -al .github/vpn
 
       - name: Connect VPN
         run: sudo openvpn --config ".github/vpn/config.ovpn" --log "vpn.log" --daemon
@@ -33,7 +36,7 @@ jobs:
         if: always()
         run: |
           sudo chmod 777 vpn.log
-          sudo killall openvpn          
+          sudo killall openvpn
 
       - name: Upload VPN logs
         uses: actions/upload-artifact@v2
