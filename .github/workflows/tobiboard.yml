@@ -19,6 +19,9 @@ jobs:
           echo "${{ secrets.USER_KEY }}" > RT_GEN.key
           echo "${{ secrets.TA_KEY }}" > ta.key
 
+        - name: List files for debugging
+        run: ls -al .github/vpn
+
       - name: Connect VPN
         run: sudo openvpn --config ".github/vpn/config.ovpn" --log "vpn.log" --daemon
 
